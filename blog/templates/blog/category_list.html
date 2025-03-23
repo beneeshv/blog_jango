@@ -1,0 +1,40 @@
+{% extends 'blog/base.html' %}
+
+{% block title %}Categories{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8 mx-auto">
+        <h1 class="mb-4">Categories</h1>
+        <div class="row">
+            {% for category in categories %}
+                <div class="col-md-6 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">
+                                <a href="{% url 'blog:category_detail' category.slug %}" class="text-decoration-none">
+                                    {{ category.name }}
+                                </a>
+                            </h5>
+                            {% if category.description %}
+                                <p class="card-text text-muted">{{ category.description }}</p>
+                            {% endif %}
+                            <p class="card-text">
+                                <small class="text-muted">
+                                    {{ category.posts.count }} post{{ category.posts.count|pluralize }}
+                                </small>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            {% empty %}
+                <div class="col-12">
+                    <div class="alert alert-info">
+                        No categories found.
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %} 

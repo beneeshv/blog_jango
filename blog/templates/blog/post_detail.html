@@ -1,0 +1,239 @@
+{% extends 'blog/base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}{{ post.title }}{% endblock %}
+
+{% block content %}
+<div class="row">
+    <!-- Main Content -->
+    <div class="col-md-8">
+        <article class="card">
+            {% if post.image %}
+                <img src="{{ post.image.url }}" class="card-img-top" alt="{{ post.title }}">
+            {% endif %}
+            <div class="card-body">
+                <h1 class="card-title display-4 mb-4">{{ post.title }}</h1>
+                <div class="post-meta mb-4">
+                    <span><i class="fas fa-user me-1"></i>{{ post.author.username }}</span> |
+                    <span><i class="fas fa-calendar me-1"></i>{{ post.created_at|date:"F j, Y" }}</span> |
+                    <span><i class="fas fa-folder me-1"></i><a href="{{ post.category.get_absolute_url }}" class="category-badge">{{ post.category.name }}</a></span>
+                </div>
+                <div class="card-text mb-4">
+                    {{ post.content|safe }}
+                </div>
+                <div class="d-flex align-items-center mb-4">
+                    <button class="btn-like btn btn-outline-primary {% if user in post.likes.all %}active{% endif %}" data-post-id="{{ post.id }}">
+                        <i class="fas fa-thumbs-up me-1"></i>
+                        <span class="count">{{ post.likes.count }}</span>
+                        <span class="like-text">Likes</span>
+                    </button>
+                    <button class="btn-dislike btn btn-outline-danger ms-3 {% if user in post.dislikes.all %}active{% endif %}" data-post-id="{{ post.id }}">
+                        <i class="fas fa-thumbs-down me-1"></i>
+                        <span class="count">{{ post.dislikes.count }}</span>
+                        <span class="dislike-text">Dislikes</span>
+                    </button>
+                </div>
+
+                <!-- Rating Section -->
+                <div class="rating-section mb-4">
+                    <div class="d-flex align-items-center">
+                        <div class="me-3">
+                            <div class="d-flex align-items-center">
+                                <span class="h5 mb-0 me-2">{{ post.average_rating|floatformat:1 }}</span>
+                                <div class="stars">
+                                    {% for i in "12345" %}
+                                        <i class="fas fa-star {% if i|add:'0' <= post.average_rating %}text-warning{% else %}text-muted{% endif %}"></i>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            <small class="text-muted">({{ post.total_ratings }} ratings)</small>
+                        </div>
+                        {% if user.is_authenticated %}
+                            <a href="{% url 'blog:rate_post' post.slug %}" class="btn btn-outline-warning">
+                                <i class="fas fa-star me-1"></i>Rate this post
+                            </a>
+                        {% else %}
+                            <a href="{% url 'login' %}" class="btn btn-outline-warning">
+                                <i class="fas fa-sign-in-alt me-1"></i>Login to rate
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+
+                {% if user == post.author %}
+                    <div class="d-flex gap-2">
+                        <a href="{% url 'blog:post_edit' post.slug %}" class="btn btn-primary">
+                            <i class="fas fa-edit me-1"></i>Edit Post
+                        </a>
+                        <a href="{% url 'blog:post_delete' post.slug %}" class="btn btn-danger">
+                            <i class="fas fa-trash me-1"></i>Delete Post
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </article>
+
+        <!-- Comments Section -->
+        <div class="card mt-4">
+            <div class="card-body">
+                <h3 class="card-title mb-4">
+                    <i class="fas fa-comments me-2"></i>Comments
+                </h3>
+                {% if user.is_authenticated %}
+                    <form method="post" action="{% url 'blog:post_detail' post.slug %}" class="mb-4">
+                        {% csrf_token %}
+                        {{ comment_form|crispy }}
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-paper-plane me-1"></i>Add Comment
+                        </button>
+                    </form>
+                {% else %}
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>Please <a href="{% url 'login' %}" class="alert-link">login</a> to leave a comment.
+                    </div>
+                {% endif %}
+
+                <div class="comments">
+                    {% for comment in comments %}
+                        <div class="comment">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <div>
+                                    <strong>{{ comment.author.username }}</strong>
+                                    <small class="text-muted ms-2">{{ comment.created_at|date:"F j, Y, g:i a" }}</small>
+                                </div>
+                            </div>
+                            <p class="mb-0">{{ comment.content }}</p>
+                        </div>
+                    {% empty %}
+                        <div class="text-center text-muted py-4">
+                            <i class="fas fa-comment-slash fa-2x mb-2"></i>
+                            <p>No comments yet. Be the first to comment!</p>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body">
+                <h4 class="card-title mb-4">
+                    <i class="fas fa-folder-open me-2"></i>Categories
+                </h4>
+                <ul class="list-unstyled">
+                    {% for category in categories %}
+                        <li class="mb-2">
+                            <a href="{{ category.get_absolute_url }}" class="category-badge">
+                                <i class="fas fa-folder me-1"></i>{{ category.name }}
+                            </a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+$(document).ready(function() {
+    // Like/Dislike functionality
+    $('.btn-like').click(function() {
+        const postId = $(this).data('post-id');
+        const $button = $(this);
+        const $count = $button.find('.count');
+        
+        $.ajax({
+            url: "{% url 'blog:like_post' post.slug %}",
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            success: function(data) {
+                if (data.success) {
+                    // Animate the count change
+                    $count.fadeOut(200, function() {
+                        $(this).text(data.likes).fadeIn(200);
+                    });
+                    
+                    // Update button states
+                    if (data.is_liked) {
+                        $button.addClass('active').addClass('btn-primary').removeClass('btn-outline-primary');
+                    } else {
+                        $button.removeClass('active').removeClass('btn-primary').addClass('btn-outline-primary');
+                    }
+                    
+                    // Update dislike button
+                    const $dislikeButton = $('.btn-dislike');
+                    const $dislikeCount = $dislikeButton.find('.count');
+                    $dislikeCount.fadeOut(200, function() {
+                        $(this).text(data.dislikes).fadeIn(200);
+                    });
+                    
+                    if (data.is_disliked) {
+                        $dislikeButton.addClass('active').addClass('btn-danger').removeClass('btn-outline-danger');
+                    } else {
+                        $dislikeButton.removeClass('active').removeClass('btn-danger').addClass('btn-outline-danger');
+                    }
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error('Error:', error);
+                alert('An error occurred while processing your request.');
+            }
+        });
+    });
+
+    $('.btn-dislike').click(function() {
+        const postId = $(this).data('post-id');
+        const $button = $(this);
+        const $count = $button.find('.count');
+        
+        $.ajax({
+            url: "{% url 'blog:dislike_post' post.slug %}",
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            success: function(data) {
+                if (data.success) {
+                    // Animate the count change
+                    $count.fadeOut(200, function() {
+                        $(this).text(data.dislikes).fadeIn(200);
+                    });
+                    
+                    // Update button states
+                    if (data.is_disliked) {
+                        $button.addClass('active').addClass('btn-danger').removeClass('btn-outline-danger');
+                    } else {
+                        $button.removeClass('active').removeClass('btn-danger').addClass('btn-outline-danger');
+                    }
+                    
+                    // Update like button
+                    const $likeButton = $('.btn-like');
+                    const $likeCount = $likeButton.find('.count');
+                    $likeCount.fadeOut(200, function() {
+                        $(this).text(data.likes).fadeIn(200);
+                    });
+                    
+                    if (data.is_liked) {
+                        $likeButton.addClass('active').addClass('btn-primary').removeClass('btn-outline-primary');
+                    } else {
+                        $likeButton.removeClass('active').removeClass('btn-primary').addClass('btn-outline-primary');
+                    }
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error('Error:', error);
+                alert('An error occurred while processing your request.');
+            }
+        });
+    });
+});
+</script>
+{% endblock %} 

@@ -1,0 +1,103 @@
+{% extends 'blog/base.html' %}
+
+{% block title %}Blog Posts{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8">
+        <h1 class="mb-4">Blog Posts</h1>
+        
+        {% if search_query %}
+            <div class="alert alert-info">
+                Showing results for "{{ search_query }}"
+            </div>
+        {% endif %}
+
+        {% for post in posts %}
+            <div class="card post-card mb-4">
+                {% if post.featured_image %}
+                    <img src="{{ post.featured_image.url }}" class="card-img-top" alt="{{ post.title }}">
+                {% endif %}
+                <div class="card-body">
+                    <h2 class="card-title">
+                        <a href="{% url 'blog:post_detail' post.slug %}" class="text-decoration-none text-dark">
+                            {{ post.title }}
+                        </a>
+                    </h2>
+                    <p class="card-text text-muted">
+                        By <a href="#" class="text-decoration-none">{{ post.author.username }}</a> |
+                        {{ post.created_at|date:"F j, Y" }} |
+                        <a href="{% url 'blog:category_detail' post.category.slug %}" class="text-decoration-none">
+                            {{ post.category.name }}
+                        </a>
+                    </p>
+                    <p class="card-text">{{ post.content|truncatewords:50 }}</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <a href="{% url 'blog:post_detail' post.slug %}" class="btn btn-primary">Read More</a>
+                        <div>
+                            <span class="me-3">
+                                <i class="fas fa-thumbs-up"></i> {{ post.get_likes_count }}
+                            </span>
+                            <span>
+                                <i class="fas fa-thumbs-down"></i> {{ post.get_dislikes_count }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% empty %}
+            <div class="alert alert-info">
+                No posts found.
+            </div>
+        {% endfor %}
+
+        <!-- Pagination -->
+        {% if posts.has_other_pages %}
+            <nav aria-label="Page navigation">
+                <ul class="pagination justify-content-center">
+                    {% if posts.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ posts.previous_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}">Previous</a>
+                        </li>
+                    {% endif %}
+
+                    {% for num in posts.paginator.page_range %}
+                        {% if posts.number == num %}
+                            <li class="page-item active">
+                                <span class="page-link">{{ num }}</span>
+                            </li>
+                        {% else %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ num }}{% if search_query %}&q={{ search_query }}{% endif %}">{{ num }}</a>
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if posts.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ posts.next_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}">Next</a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        {% endif %}
+    </div>
+
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Categories</h5>
+                <ul class="list-unstyled">
+                    {% for category in categories %}
+                        <li class="mb-2">
+                            <a href="{% url 'blog:category_detail' category.slug %}" class="text-decoration-none">
+                                {{ category.name }}
+                            </a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 
