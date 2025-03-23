@@ -1,0 +1,172 @@
+{% extends 'admin/base_site.html' %}
+{% load static %}
+
+{% block title %}Admin Dashboard{% endblock %}
+
+{% block extrastyle %}
+<style>
+    .dashboard-stats {
+        margin-bottom: 2rem;
+    }
+    .stat-card {
+        background: white;
+        border-radius: 8px;
+        padding: 1.5rem;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        margin-bottom: 1rem;
+    }
+    .stat-card i {
+        font-size: 2rem;
+        margin-bottom: 1rem;
+    }
+    .stat-number {
+        font-size: 2rem;
+        font-weight: bold;
+        margin: 0.5rem 0;
+    }
+    .stat-label {
+        color: #666;
+        font-size: 0.9rem;
+    }
+    .quick-actions {
+        margin-top: 2rem;
+    }
+    .action-card {
+        background: white;
+        border-radius: 8px;
+        padding: 1.5rem;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        margin-bottom: 1rem;
+        transition: transform 0.2s;
+    }
+    .action-card:hover {
+        transform: translateY(-5px);
+    }
+    .recent-posts {
+        margin-top: 2rem;
+    }
+    .post-item {
+        padding: 1rem;
+        border-bottom: 1px solid #eee;
+    }
+    .post-item:last-child {
+        border-bottom: none;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <h1 class="mb-4">Admin Dashboard</h1>
+
+    <!-- Statistics Cards -->
+    <div class="row dashboard-stats">
+        <div class="col-md-3">
+            <div class="stat-card">
+                <i class="fas fa-file-alt text-primary"></i>
+                <div class="stat-number">{{ total_posts }}</div>
+                <div class="stat-label">Total Posts</div>
+                <a href="{% url 'admin:blog_post_changelist' %}" class="btn btn-sm btn-outline-primary mt-2">View All</a>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card">
+                <i class="fas fa-users text-success"></i>
+                <div class="stat-number">{{ total_users }}</div>
+                <div class="stat-label">Total Users</div>
+                <a href="{% url 'admin:auth_user_changelist' %}" class="btn btn-sm btn-outline-success mt-2">View All</a>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card">
+                <i class="fas fa-comments text-info"></i>
+                <div class="stat-number">{{ total_comments }}</div>
+                <div class="stat-label">Total Comments</div>
+                <a href="{% url 'admin:blog_comment_changelist' %}" class="btn btn-sm btn-outline-info mt-2">View All</a>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card">
+                <i class="fas fa-folder text-warning"></i>
+                <div class="stat-number">{{ total_categories }}</div>
+                <div class="stat-label">Categories</div>
+                <a href="{% url 'admin:blog_category_changelist' %}" class="btn btn-sm btn-outline-warning mt-2">View All</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="row quick-actions">
+        <div class="col-md-6">
+            <div class="action-card">
+                <h3>Quick Actions</h3>
+                <div class="list-group">
+                    <a href="{% url 'admin:blog_post_add' %}" class="list-group-item list-group-item-action">
+                        <i class="fas fa-plus-circle me-2"></i>Create New Post
+                    </a>
+                    <a href="{% url 'admin:auth_user_add' %}" class="list-group-item list-group-item-action">
+                        <i class="fas fa-user-plus me-2"></i>Add New User
+                    </a>
+                    <a href="{% url 'admin:blog_category_add' %}" class="list-group-item list-group-item-action">
+                        <i class="fas fa-folder-plus me-2"></i>Add New Category
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="action-card">
+                <h3>Recent Activity</h3>
+                <div class="list-group">
+                    {% for activity in recent_activity %}
+                        <div class="list-group-item">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <i class="fas fa-{{ activity.icon }} me-2"></i>
+                                    {{ activity.description }}
+                                </div>
+                                <small class="text-muted">{{ activity.time }}</small>
+                            </div>
+                        </div>
+                    {% empty %}
+                        <div class="text-center text-muted py-3">No recent activity</div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Posts -->
+    <div class="row recent-posts">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title mb-0">Recent Posts</h3>
+                </div>
+                <div class="card-body">
+                    {% for post in recent_posts %}
+                        <div class="post-item">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h5 class="mb-1">{{ post.title }}</h5>
+                                    <small class="text-muted">
+                                        By {{ post.author.username }} | 
+                                        {{ post.created_at|date:"F j, Y" }} |
+                                        Status: {{ post.status }}
+                                    </small>
+                                </div>
+                                <div>
+                                    <a href="{% url 'admin:blog_post_change' post.id %}" class="btn btn-sm btn-primary">
+                                        Edit
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    {% empty %}
+                        <div class="text-center text-muted py-3">No posts found</div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

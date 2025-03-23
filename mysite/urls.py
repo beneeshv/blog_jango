@@ -18,9 +18,20 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
+from blog.admin import AdminDashboardView
+from django.contrib.auth import views as auth_views
+from django.shortcuts import redirect
+
+def redirect_to_dashboard(request):
+    return redirect('admin-dashboard')
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('admin/dashboard/', AdminDashboardView.as_view(), name='admin-dashboard'),
+    path('admin/login/', auth_views.LoginView.as_view(
+        template_name='admin/login.html',
+        next_page='admin-dashboard'
+    ), name='admin-login'),
     path('', include('blog.urls')),
     path('accounts/', include('django.contrib.auth.urls')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

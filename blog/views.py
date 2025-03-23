@@ -222,3 +222,25 @@ def rate_post(request, slug):
     
     return render(request, 'blog/rate_post.html', {'post': post})
 
+
+
+from django.shortcuts import render, redirect
+from django.contrib.auth import authenticate, login
+from django.contrib.auth.decorators import login_required
+
+def admin_login(request):
+    if request.user.is_authenticated and request.user.is_superuser:
+        return redirect('admin/dashboard')  # Redirect to Admin Dashboard if already logged in
+    
+    if request.method == "POST":
+        username = request.POST['username']
+        password = request.POST['password']
+        user = authenticate(request, username=username, password=password)
+        
+        if user is not None and user.is_superuser:
+            login(request, user)
+            return redirect('admin/dashboard')  # Redirect to Admin Dashboard
+        else:
+            return render(request, 'admin/admin_login.html', {'error': 'Invalid Credentials or Not a Superuser'})
+
+    return render(request, 'admin/admin_login.html')
