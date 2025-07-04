@@ -20,18 +20,31 @@ from django.conf import settings
 from django.conf.urls.static import static
 from blog.admin import AdminDashboardView
 from django.contrib.auth import views as auth_views
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.shortcuts import redirect
+from django.contrib.auth import authenticate, login
+from django.views.generic import RedirectView
 
-def redirect_to_dashboard(request):
-    return redirect('admin-dashboard')
+def is_staff(user):
+    return user.is_staff
+
+def admin_login_view(request):
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        user = authenticate(request, username=username, password=password)
+        
+        if user is not None and user.is_staff:
+            login(request, user)
+            return redirect('admin-dashboard')
+        else:
+            return redirect('admin-login')
+    return redirect('admin-login')
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('admin/dashboard/', AdminDashboardView.as_view(), name='admin-dashboard'),
-    path('admin/login/', auth_views.LoginView.as_view(
-        template_name='admin/login.html',
-        next_page='admin-dashboard'
-    ), name='admin-login'),
+    path('admin/login/', admin_login_view, name='admin-login'),
+    path('admin/dashboard/', user_passes_test(is_staff)(AdminDashboardView.as_view()), name='admin-dashboard'),
     path('', include('blog.urls')),
     path('accounts/', include('django.contrib.auth.urls')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

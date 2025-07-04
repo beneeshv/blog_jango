@@ -5,167 +5,350 @@
 
 {% block extrastyle %}
 <style>
-    .dashboard-stats {
+    :root {
+        --primary-color: #2563eb;
+        --secondary-color: #3b82f6;
+        --success-color: #10b981;
+        --danger-color: #ef4444;
+        --warning-color: #f59e0b;
+        --info-color: #3b82f6;
+        --text-color: #1f2937;
+        --light-text: #6b7280;
+        --background: #f3f4f6;
+        --card-bg: #ffffff;
+        --border-color: #e5e7eb;
+    }
+
+    body {
+        background: var(--background);
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    }
+
+    .dashboard-container {
+        padding: 2rem;
+    }
+
+    .dashboard-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
         margin-bottom: 2rem;
     }
+
+    .dashboard-title {
+        font-size: 1.875rem;
+        font-weight: 700;
+        color: var(--text-color);
+    }
+
+    .user-info {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .user-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: var(--primary-color);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+    }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
     .stat-card {
-        background: white;
-        border-radius: 8px;
+        background: var(--card-bg);
+        border-radius: 1rem;
         padding: 1.5rem;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        margin-bottom: 1rem;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s ease;
     }
-    .stat-card i {
-        font-size: 2rem;
-        margin-bottom: 1rem;
-    }
-    .stat-number {
-        font-size: 2rem;
-        font-weight: bold;
-        margin: 0.5rem 0;
-    }
-    .stat-label {
-        color: #666;
-        font-size: 0.9rem;
-    }
-    .quick-actions {
-        margin-top: 2rem;
-    }
-    .action-card {
-        background: white;
-        border-radius: 8px;
-        padding: 1.5rem;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        margin-bottom: 1rem;
-        transition: transform 0.2s;
-    }
-    .action-card:hover {
+
+    .stat-card:hover {
         transform: translateY(-5px);
     }
-    .recent-posts {
-        margin-top: 2rem;
+
+    .stat-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 1rem;
     }
-    .post-item {
+
+    .stat-icon i {
+        font-size: 1.5rem;
+        color: white;
+    }
+
+    .stat-number {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--text-color);
+        margin-bottom: 0.5rem;
+    }
+
+    .stat-label {
+        color: var(--light-text);
+        font-size: 0.875rem;
+    }
+
+    .dashboard-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .dashboard-card {
+        background: var(--card-bg);
+        border-radius: 1rem;
+        padding: 1.5rem;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    }
+
+    .card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+
+    .card-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: var(--text-color);
+    }
+
+    .action-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .action-item {
         padding: 1rem;
-        border-bottom: 1px solid #eee;
+        border-bottom: 1px solid var(--border-color);
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        transition: background-color 0.3s ease;
     }
-    .post-item:last-child {
+
+    .action-item:last-child {
         border-bottom: none;
+    }
+
+    .action-item:hover {
+        background-color: var(--background);
+    }
+
+    .action-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+    }
+
+    .action-content {
+        flex: 1;
+    }
+
+    .action-title {
+        font-weight: 500;
+        color: var(--text-color);
+        margin-bottom: 0.25rem;
+    }
+
+    .action-meta {
+        font-size: 0.875rem;
+        color: var(--light-text);
+    }
+
+    .btn-action {
+        padding: 0.5rem 1rem;
+        border-radius: 0.5rem;
+        font-weight: 500;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.3s ease;
+    }
+
+    .btn-primary {
+        background-color: var(--primary-color);
+        color: white;
+    }
+
+    .btn-primary:hover {
+        background-color: var(--secondary-color);
+        color: white;
+    }
+
+    .btn-logout {
+        background-color: var(--danger-color);
+        color: white;
+    }
+
+    .btn-logout:hover {
+        background-color: #dc2626;
+        color: white;
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="container-fluid">
-    <h1 class="mb-4">Admin Dashboard</h1>
-
-    <!-- Statistics Cards -->
-    <div class="row dashboard-stats">
-        <div class="col-md-3">
-            <div class="stat-card">
-                <i class="fas fa-file-alt text-primary"></i>
-                <div class="stat-number">{{ total_posts }}</div>
-                <div class="stat-label">Total Posts</div>
-                <a href="{% url 'admin:blog_post_changelist' %}" class="btn btn-sm btn-outline-primary mt-2">View All</a>
+<div class="dashboard-container">
+    <div class="dashboard-header">
+        <h1 class="dashboard-title">Admin Dashboard</h1>
+        <div class="user-info">
+            <div class="user-avatar">
+                {{ user.username|first|upper }}
             </div>
-        </div>
-        <div class="col-md-3">
-            <div class="stat-card">
-                <i class="fas fa-users text-success"></i>
-                <div class="stat-number">{{ total_users }}</div>
-                <div class="stat-label">Total Users</div>
-                <a href="{% url 'admin:auth_user_changelist' %}" class="btn btn-sm btn-outline-success mt-2">View All</a>
+            <div>
+                <div class="fw-bold">{{ user.username }}</div>
+                <div class="text-muted">Administrator</div>
             </div>
-        </div>
-        <div class="col-md-3">
-            <div class="stat-card">
-                <i class="fas fa-comments text-info"></i>
-                <div class="stat-number">{{ total_comments }}</div>
-                <div class="stat-label">Total Comments</div>
-                <a href="{% url 'admin:blog_comment_changelist' %}" class="btn btn-sm btn-outline-info mt-2">View All</a>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="stat-card">
-                <i class="fas fa-folder text-warning"></i>
-                <div class="stat-number">{{ total_categories }}</div>
-                <div class="stat-label">Categories</div>
-                <a href="{% url 'admin:blog_category_changelist' %}" class="btn btn-sm btn-outline-warning mt-2">View All</a>
-            </div>
+            <a href="{% url 'blog:logout' %}" class="btn-action btn-logout">
+                <i class="fas fa-sign-out-alt"></i>
+                Logout
+            </a>
         </div>
     </div>
 
-    <!-- Quick Actions -->
-    <div class="row quick-actions">
-        <div class="col-md-6">
-            <div class="action-card">
-                <h3>Quick Actions</h3>
-                <div class="list-group">
-                    <a href="{% url 'admin:blog_post_add' %}" class="list-group-item list-group-item-action">
-                        <i class="fas fa-plus-circle me-2"></i>Create New Post
-                    </a>
-                    <a href="{% url 'admin:auth_user_add' %}" class="list-group-item list-group-item-action">
-                        <i class="fas fa-user-plus me-2"></i>Add New User
-                    </a>
-                    <a href="{% url 'admin:blog_category_add' %}" class="list-group-item list-group-item-action">
-                        <i class="fas fa-folder-plus me-2"></i>Add New Category
-                    </a>
-                </div>
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon" style="background-color: var(--primary-color);">
+                <i class="fas fa-file-alt"></i>
             </div>
+            <div class="stat-number">{{ total_posts }}</div>
+            <div class="stat-label">Total Posts</div>
+            <a href="{% url 'admin:blog_post_changelist' %}" class="btn-action btn-primary mt-3">
+                <i class="fas fa-eye"></i>
+                View Posts
+            </a>
         </div>
-        <div class="col-md-6">
-            <div class="action-card">
-                <h3>Recent Activity</h3>
-                <div class="list-group">
-                    {% for activity in recent_activity %}
-                        <div class="list-group-item">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <div>
-                                    <i class="fas fa-{{ activity.icon }} me-2"></i>
-                                    {{ activity.description }}
-                                </div>
-                                <small class="text-muted">{{ activity.time }}</small>
-                            </div>
-                        </div>
-                    {% empty %}
-                        <div class="text-center text-muted py-3">No recent activity</div>
-                    {% endfor %}
-                </div>
+
+        <div class="stat-card">
+            <div class="stat-icon" style="background-color: var(--success-color);">
+                <i class="fas fa-users"></i>
             </div>
+            <div class="stat-number">{{ total_users }}</div>
+            <div class="stat-label">Total Users</div>
+            <a href="{% url 'admin:auth_user_changelist' %}" class="btn-action btn-primary mt-3">
+                <i class="fas fa-eye"></i>
+                View Users
+            </a>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon" style="background-color: var(--warning-color);">
+                <i class="fas fa-comments"></i>
+            </div>
+            <div class="stat-number">{{ total_comments }}</div>
+            <div class="stat-label">Total Comments</div>
+            <a href="{% url 'admin:blog_comment_changelist' %}" class="btn-action btn-primary mt-3">
+                <i class="fas fa-eye"></i>
+                View Comments
+            </a>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon" style="background-color: var(--info-color);">
+                <i class="fas fa-folder"></i>
+            </div>
+            <div class="stat-number">{{ total_categories }}</div>
+            <div class="stat-label">Categories</div>
+            <a href="{% url 'admin:blog_category_changelist' %}" class="btn-action btn-primary mt-3">
+                <i class="fas fa-eye"></i>
+                View Categories
+            </a>
         </div>
     </div>
 
-    <!-- Recent Posts -->
-    <div class="row recent-posts">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-header">
-                    <h3 class="card-title mb-0">Recent Posts</h3>
-                </div>
-                <div class="card-body">
-                    {% for post in recent_posts %}
-                        <div class="post-item">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <div>
-                                    <h5 class="mb-1">{{ post.title }}</h5>
-                                    <small class="text-muted">
-                                        By {{ post.author.username }} | 
-                                        {{ post.created_at|date:"F j, Y" }} |
-                                        Status: {{ post.status }}
-                                    </small>
-                                </div>
-                                <div>
-                                    <a href="{% url 'admin:blog_post_change' post.id %}" class="btn btn-sm btn-primary">
-                                        Edit
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                    {% empty %}
-                        <div class="text-center text-muted py-3">No posts found</div>
-                    {% endfor %}
-                </div>
+    <div class="dashboard-grid">
+        <div class="dashboard-card">
+            <div class="card-header">
+                <h2 class="card-title">Quick Actions</h2>
             </div>
+            <ul class="action-list">
+                <li class="action-item">
+                    <div class="action-icon" style="background-color: var(--primary-color);">
+                        <i class="fas fa-plus"></i>
+                    </div>
+                    <div class="action-content">
+                        <div class="action-title">Create New Post</div>
+                        <div class="action-meta">Add a new blog post to your site</div>
+                    </div>
+                    <a href="{% url 'admin:blog_post_add' %}" class="btn-action btn-primary">
+                        <i class="fas fa-arrow-right"></i>
+                    </a>
+                </li>
+                <li class="action-item">
+                    <div class="action-icon" style="background-color: var(--success-color);">
+                        <i class="fas fa-user-plus"></i>
+                    </div>
+                    <div class="action-content">
+                        <div class="action-title">Add New User</div>
+                        <div class="action-meta">Create a new user account</div>
+                    </div>
+                    <a href="{% url 'admin:auth_user_add' %}" class="btn-action btn-primary">
+                        <i class="fas fa-arrow-right"></i>
+                    </a>
+                </li>
+                <li class="action-item">
+                    <div class="action-icon" style="background-color: var(--warning-color);">
+                        <i class="fas fa-folder-plus"></i>
+                    </div>
+                    <div class="action-content">
+                        <div class="action-title">Add New Category</div>
+                        <div class="action-meta">Create a new category for posts</div>
+                    </div>
+                    <a href="{% url 'admin:blog_category_add' %}" class="btn-action btn-primary">
+                        <i class="fas fa-arrow-right"></i>
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        <div class="dashboard-card">
+            <div class="card-header">
+                <h2 class="card-title">Recent Activity</h2>
+            </div>
+            <ul class="action-list">
+                {% for activity in recent_activity %}
+                    <li class="action-item">
+                        <div class="action-icon" style="background-color: var(--info-color);">
+                            <i class="fas fa-{{ activity.icon }}"></i>
+                        </div>
+                        <div class="action-content">
+                            <div class="action-title">{{ activity.description }}</div>
+                            <div class="action-meta">{{ activity.time }}</div>
+                        </div>
+                    </li>
+                {% empty %}
+                    <li class="action-item">
+                        <div class="action-content">
+                            <div class="action-title">No recent activity</div>
+                        </div>
+                    </li>
+                {% endfor %}
+            </ul>
         </div>
     </div>
 </div>
