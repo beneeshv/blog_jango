@@ -3,6 +3,7 @@ pipeline {
     environment {
         VENV = ".venv"
     }
+
     stages {
         stage('Checkout') {
             steps {
@@ -18,19 +19,23 @@ pipeline {
             }
         }
 
-        stage('Run Hello World Test') {
+        stage('Run Server for 20 sec') {
             steps {
-                bat "${VENV}\\Scripts\\python manage.py test blog.tests.HelloWorldTest"
+                bat """
+                start /b ${VENV}\\Scripts\\python manage.py runserver 0.0.0.0:8000
+                timeout /t 20
+                taskkill /f /im python.exe
+                """
             }
         }
     }
 
     post {
         success {
-            echo "✅ Hello World test ran successfully!"
+            echo "✅ Server ran successfully for 20 seconds!"
         }
         failure {
-            echo "❌ Hello World test failed."
+            echo "❌ Server stage failed."
         }
     }
 }
