@@ -19,6 +19,12 @@ pipeline {
             }
         }
 
+        stage('Run Tests') {
+            steps {
+                bat "${VENV}\\Scripts\\python manage.py test"
+            }
+        }
+
         stage('Run Server for 20 sec') {
             steps {
                 bat """
