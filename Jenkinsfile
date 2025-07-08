@@ -9,13 +9,14 @@ pipeline {
                 checkout scm
             }
         }
-        stage('Setup Python Environment') {
-            steps {
-                bat "python -m venv %VENV%"
-                bat "%VENV%\\Scripts\\pip install --upgrade pip"
-                bat "%VENV%\\Scripts\\pip install -r requirements.txt"
-            }
-        }
+       stage('Setup Python Environment') {
+    steps {
+        bat 'python -m venv .venv'
+        // Add this line to upgrade pip, setuptools, and wheel
+        bat '.venv\\Scripts\\pip install --upgrade pip setuptools wheel'
+        bat '.venv\\Scripts\\pip install -r requirements.txt'
+    }
+}
         stage('Run Django Tests') {
             steps {
                 bat "%VENV%\\Scripts\\python manage.py test"
