@@ -2,23 +2,26 @@ pipeline {
     agent any
 
     environment {
-        // Use a virtual environment path
         VENV = ".venv"
-        PYTHON = "${VENV}/Scripts/python.exe" // for Windows
+        PYTHON = "${VENV}/Scripts/python.exe"
         PIP = "${VENV}/Scripts/pip.exe"
     }
 
     stages {
-
         stage('Checkout') {
             steps {
-                git 'https://github.com/your-username/your-django-repo.git'
+                checkout scm
             }
         }
 
-        stage('Setup Python Environment') {
+        stage('Create Virtual Environment') {
             steps {
                 bat 'python -m venv .venv'
+            }
+        }
+
+        stage('Install Dependencies') {
+            steps {
                 bat "${PIP} install --upgrade pip"
                 bat "${PIP} install -r requirements.txt"
             }
@@ -36,13 +39,12 @@ pipeline {
             }
         }
 
-        stage('Static Files') {
+        stage('Collect Static Files') {
             steps {
                 bat "${PYTHON} manage.py collectstatic --noinput"
             }
         }
 
-        // Optional Docker Build
         stage('Build Docker Image') {
             when {
                 expression { fileExists('Dockerfile') }
@@ -54,14 +56,11 @@ pipeline {
     }
 
     post {
-        always {
-            echo 'Pipeline finished.'
-        }
         success {
-            echo 'Build succeeded.'
+            echo '✅ Build completed successfully.'
         }
         failure {
-            echo 'Build failed.'
+            echo '❌ Build failed.'
         }
     }
 }
