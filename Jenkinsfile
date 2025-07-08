@@ -1,6 +1,8 @@
 pipeline {
     agent any
-
+    environment {
+        VENV = ".venv"
+    }
     stages {
         stage('Checkout') {
             steps {
@@ -8,60 +10,27 @@ pipeline {
             }
         }
 
-        stage('Setup Python Environment') {
+        stage('Set Up Python') {
             steps {
-                bat 'python -m venv .venv'
-                bat '.venv\\Scripts\\python -m pip install --upgrade pip setuptools wheel'
-                // Install Pillow first with binary distribution
-                bat '.venv\\Scripts\\pip install --only-binary=:all: pillow>=10.0.0'
-                // Then install the rest of requirements
-                bat '.venv\\Scripts\\pip install -r requirements.txt'
+                bat "python -m venv ${VENV}"
+                bat "${VENV}\\Scripts\\pip install --upgrade pip"
+                bat "${VENV}\\Scripts\\pip install -r requirements.txt"
             }
         }
 
-        stage('Run Django Tests') {
+        stage('Run Hello World Test') {
             steps {
-                script {
-                    try {
-                        // Create test directory if it doesn't exist
-                        bat 'mkdir test-reports || echo "Directory exists"'
-                        // Run tests with XML output
-                        bat '.venv\\Scripts\\python manage.py test --noinput --verbosity=2 --testrunner="xmlrunner.extra.djangotestrunner.XMLTestRunner" --output-file=test-reports/junit.xml'
-                    } catch (Exception e) {
-                        echo "Test execution failed: ${e}"
-                        // Continue pipeline even if tests fail
-                        currentBuild.result = 'UNSTABLE'
-                    }
-                }
-            }
-            post {
-                always {
-                    junit 'test-reports/*.xml'
-                }
-            }
-        }
-
-        stage('Collect Static Files') {
-            steps {
-                bat '.venv\\Scripts\\python manage.py collectstatic --noinput'
+                bat "${VENV}\\Scripts\\python manage.py test blog.tests.HelloWorldTest"
             }
         }
     }
 
     post {
-        always {
-            echo 'Pipeline completed - cleanup can go here'
-            // Clean up the virtual environment if needed
-            // bat 'rmdir /s /q .venv'
-        }
         success {
-            echo '✅ Pipeline succeeded'
+            echo "✅ Hello World test ran successfully!"
         }
         failure {
-            echo '❌ Pipeline failed'
-        }
-        unstable {
-            echo '⚠️ Pipeline completed with unstable status (tests failed)'
+            echo "❌ Hello World test failed."
         }
     }
 }
