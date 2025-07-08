@@ -12,8 +12,8 @@ pipeline {
             steps {
                 bat 'python -m venv .venv'
                 bat '.venv\\Scripts\\python -m pip install --upgrade pip setuptools wheel'
-                // Install Pillow first with binary to avoid compilation issues
-                bat '.venv\\Scripts\\pip install --only-binary=:all: pillow==10.3.0'
+                // Install available Pillow version with binary distribution
+                bat '.venv\\Scripts\\pip install --only-binary=:all: pillow>=10.0.0'
                 // Then install the rest of requirements
                 bat '.venv\\Scripts\\pip install -r requirements.txt'
             }
@@ -21,15 +21,7 @@ pipeline {
 
         stage('Run Django Tests') {
             steps {
-                script {
-                    try {
-                        bat '.venv\\Scripts\\python manage.py test --noinput'
-                    } catch (Exception e) {
-                        echo "❌ Tests failed: ${e}"
-                        currentBuild.result = 'FAILURE'
-                        error('Tests failed')
-                    }
-                }
+                bat '.venv\\Scripts\\python manage.py test --noinput'
             }
             post {
                 always {
