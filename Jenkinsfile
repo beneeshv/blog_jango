@@ -41,7 +41,7 @@ pipeline {
                 }
                 stage('Push to Docker Hub') {
                     steps {
-                        withCredentials([usernamePassword(credentialsId: 'dockerhub-id', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+                        withCredentials([usernamePassword(credentialsId: '76492620-2fd6-45e1-901c-383958bf196d', usernameVariable: 'beneesh', passwordVariable: '@Be23ne10esh')]) {
                             bat """
                             echo %DOCKER_PASS% | docker login -u %DOCKER_USER% --password-stdin
                             docker push yourdockerid/django-app:latest
