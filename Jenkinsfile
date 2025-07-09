@@ -36,7 +36,7 @@ pipeline {
         }
         stage('Build Docker Image') {
             steps {
-                bat 'docker build -t yourdockerid/django-app:latest .'
+                bat 'docker build -t django-app:latest .'
                 }
                 }
                 stage('Push to Docker Hub') {
