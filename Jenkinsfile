@@ -36,19 +36,20 @@ pipeline {
         }
         stage('Build Docker Image') {
             steps {
-                bat 'docker build -t django-app:latest .'
+                bat 'docker build -t yourdockerid/blog-jango .'
+            }
+        }
+
+        stage('Push to Docker Hub') {
+            steps {
+                withCredentials([usernamePassword(credentialsId: '76492620-2fd6-45e1-901c-383958bf196d', usernameVariable: 'beneesh', passwordVariable: '@Be23ne10esh')]) {
+                    bat '''
+                        echo $PASS | docker login -u $USER --password-stdin
+                        docker push yourdockerid/blog-jango
+                    '''
                 }
-                }
-                stage('Push to Docker Hub') {
-                    steps {
-                        withCredentials([usernamePassword(credentialsId: '76492620-2fd6-45e1-901c-383958bf196d', usernameVariable: 'beneesh', passwordVariable: '@Be23ne10esh')]) {
-                            bat """
-                            echo %DOCKER_PASS% | docker login -u %DOCKER_USER% --password-stdin
-                            docker push yourdockerid/django-app:latest
-                            """
-                            }
-                            }
-                            }
+            }
+        }
 
     }
 
@@ -61,3 +62,20 @@ pipeline {
         }
     }
 }
+
+stage('Build Docker Image') {
+            steps {
+                sh 'docker build -t yourdockerid/django-app:latest .'
+            }
+        }
+
+        stage('Push to Docker Hub') {
+            steps {
+                withCredentials([usernamePassword(credentialsId: '76492620-2fd6-45e1-901c-383958bf196d', usernameVariable: 'beneesh', passwordVariable: '@Be23ne10esh')]) {
+                    sh '''
+                        echo $PASS | docker login -u $USER --password-stdin
+                        docker push yourdockerid/django-app:latest
+                    '''
+                }
+            }
+        }
