@@ -36,7 +36,7 @@ pipeline {
         }
           stage('Build Docker Image') {
             steps {
-                bat "docker build -t ${docker-jango} ."
+                bat "docker build -t ${flyer} ."
             }
         }
 
@@ -49,7 +49,7 @@ pipeline {
                 )]) {
                     bat """
                         echo %@Be23ne10esh% | docker login -u %beneesh% --password-stdin
-                        docker push ${docker-jango}
+                        docker push ${flyer}
                     """
                 }
             }
