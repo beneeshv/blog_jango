@@ -34,11 +34,27 @@ pipeline {
                 """
             }
         }
+        stage('Build Docker Image') {
+            steps {
+                sh 'docker build -t yourdockerid/django-app:latest .'
+            }
+        }
+
+        stage('Push to Docker Hub') {
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'dockerhub-id', usernameVariable: 'beneesh', passwordVariable: '@Be23ne10esh')]) {
+                    sh '''
+                        echo $PASS | docker login -u $USER --password-stdin
+                        docker push yourdockerid/django-app:latest
+                    '''
+                }
+            }
+        }
     }
 
     post {
         success {
-            echo "✅ Server ran successfully for 20 seconds!"
+            echo "✅ Server ran successfully working in ci cd pipeline"
         }
         failure {
             echo "❌ Server stage failed."
