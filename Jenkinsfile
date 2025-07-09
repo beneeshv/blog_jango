@@ -56,12 +56,5 @@ stage('Push to Docker Hub') {
 }
     }
 
-    post {
-        success {
-            echo "✅ Server ran successfully working in ci cd pipeline"
-        }
-        failure {
-            echo "❌ Server stage failed."
-        }
-    }
+    
 }
