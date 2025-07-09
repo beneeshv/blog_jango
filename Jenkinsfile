@@ -36,20 +36,20 @@ pipeline {
         }
         stage('Build Docker Image') {
             steps {
-                sh 'docker build -t yourdockerid/django-app:latest .'
-            }
-        }
-
-        stage('Push to Docker Hub') {
-            steps {
-                withCredentials([usernamePassword(credentialsId: 'dockerhub-id', usernameVariable: 'beneesh', passwordVariable: '@Be23ne10esh')]) {
-                    sh '''
-                        echo $PASS | docker login -u $USER --password-stdin
-                        docker push yourdockerid/django-app:latest
-                    '''
+                bat 'docker build -t yourdockerid/django-app:latest .'
                 }
-            }
-        }
+                }
+                stage('Push to Docker Hub') {
+                    steps {
+                        withCredentials([usernamePassword(credentialsId: 'dockerhub-id', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+                            bat """
+                            echo %DOCKER_PASS% | docker login -u %DOCKER_USER% --password-stdin
+                            docker push yourdockerid/django-app:latest
+                            """
+                            }
+                            }
+                            }
+
     }
 
     post {
