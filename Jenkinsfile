@@ -35,25 +35,25 @@ pipeline {
             }
         }
           stage('Build Docker Image') {
-            steps {
-                bat "docker build -t ${flyer} ."
-            }
-        }
+    steps {
+        bat 'docker build -t beneesh/blog .'
+    }
+}
 
-        stage('Push to Docker Hub') {
-            steps {
-                withCredentials([usernamePassword(
-                    credentialsId: '76492620-2fd6-45e1-901c-383958bf196d', 
-                    usernameVariable: 'beneesh', 
-                    passwordVariable: '@Be23ne10esh'
-                )]) {
-                    bat """
-                        echo %@Be23ne10esh% | docker login -u %beneesh% --password-stdin
-                        docker push ${flyer}
-                    """
-                }
-            }
+stage('Push to Docker Hub') {
+    steps {
+        withCredentials([usernamePassword(
+            credentialsId: '76492620-2fd6-45e1-901c-383958bf196d', 
+            usernameVariable: 'beneesh', 
+            passwordVariable: '@Be23ne10esh'
+        )]) {
+            bat '''
+                docker login -u %beneesh% -p %@Be23ne10esh%
+                docker push beneesh/blog
+            '''
         }
+    }
+}
     }
 
     post {
