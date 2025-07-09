@@ -35,21 +35,25 @@ pipeline {
             }
         }
         stage('Build Docker Image') {
-            steps {
-                bat 'docker build -t yourdockerid/blog-jango .'
-            }
-        }
+    steps {
+        bat 'docker build -t beneesh/blog-jango .'
+    }
+}
 
-        stage('Push to Docker Hub') {
-            steps {
-                withCredentials([usernamePassword(credentialsId: '76492620-2fd6-45e1-901c-383958bf196d', usernameVariable: 'beneesh', passwordVariable: '@Be23ne10esh')]) {
-                    bat '''
-                        echo $PASS | docker login -u $USER --password-stdin
-                        docker push yourdockerid/blog-jango
-                    '''
-                }
-            }
+stage('Push to Docker Hub') {
+    steps {
+        withCredentials([usernamePassword(
+            credentialsId: '76492620-2fd6-45e1-901c-383958bf196d', 
+            usernameVariable: 'beneesh', 
+            passwordVariable: '@Be23ne10esh'
+        )]) {
+            bat '''
+                docker login -u %beneesh% -p %@Be23ne10esh%
+                docker push beneesh/blog-jango
+            '''
         }
+    }
+}
 
     }
 
